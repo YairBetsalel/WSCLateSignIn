@@ -1,0 +1,30 @@
+{
+    "ID-9I6NU9MGE": {
+        "name": "Aldrich Xu",
+        "time": "25/03/2025, 10:03:11",
+        "reason": "Hellpo",
+        "uniqueID": "ID-9I6NU9MGE",
+        "rating": "Invalid"
+    },
+    "ID-VN0EO6GTC": {
+        "name": "Yair Betsalel",
+        "time": "26/03/2025, 10:23:24",
+        "reason": "missed the bgus",
+        "uniqueID": "ID-VN0EO6GTC",
+        "rating": "Invalid"
+    },
+    "ID-3EQ8JLOKW": {
+        "name": "Troy Bsisou",
+        "time": "26/03/2025, 12:22:41",
+        "reason": "Doctor appointment",
+        "uniqueID": "ID-3EQ8JLOKW",
+        "rating": "Valid"
+    },
+    "ID-UZZ0YPTC0": {
+        "name": "Sarah Anderson",
+        "time": "26/03/2025, 12:28:08",
+        "reason": "Missed the Bus",
+        "uniqueID": "ID-UZZ0YPTC0",
+        "rating": "Valid"
+    }
+}

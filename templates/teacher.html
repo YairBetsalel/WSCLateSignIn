@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Panel - Validate Student Reason</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            background-color: #f0f8ff;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10%;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            height: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: auto;
+            text-align: center;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 30px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 2.1rem;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 25px;
+            background-color: #eaf2f8;
+            border-radius: 10%;
+            border: 1px solid #3498db;
+            font-size: 2.2rem;
+
+        }
+
+        #uniqueID {
+            width: 95%;
+            font-size: 2.5rem;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-container button {
+            width: 48%;
+        }
+
+        #breaker {
+            margin-bottom: 350px;
+            color: #f0f8ff;
+            border-radius: 1%;
+            border: black;
+        }
+    </style>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+
+<body>
+    <br><br><br><br><br>
+    <span id="breaker">lhghjg</span>
+    <div class="container">
+        <h2 style="font-size: 2rem;">Student Reason Validator</h2>
+
+        <label style="font-size: 1.7rem;" for="uniqueID">Enter Unique ID:</label>
+        <input type="text" id="uniqueID" placeholder="e.g., ID-ABC123XYZ">
+
+        <div id="qr-reader" style="width: 100%; margin-top: 20px;"></div>
+
+        <div class="button-container">
+            <button onclick="fetchStudentInfo()">Get Student Info</button>
+            <button onclick="startScanner()">Open Camera</button>
+        </div>
+
+        <div id="studentInfo" class="result" style="display:none;">
+            <p><strong>Name:</strong> <span id="sName"></span></p>
+            <p><strong>Time:</strong> <span id="sTime"></span></p>
+            <p><strong>Reason:</strong> <span id="sReason"></span></p>
+
+            <strong><label for="rating">Rate Validity:</label></strong>
+            <select id="rating">
+                <option value="Valid">Valid</option>
+                <option value="Invalid">Invalid</option>
+            </select>
+
+            <button onclick="submitRating()">Submit Rating</button>
+        </div>
+    </div>
+
+    <script>
+        // Load database from localStorage
+        function onScanSuccess(decodedText, decodedResult) {
+            // Automatically put scanned text into input field
+            document.getElementById("uniqueID").value = decodedText;
+            // Optionally auto-fetch info after scan
+            fetchStudentInfo();
+            // Stop scanning after successful read
+            html5QrcodeScanner.clear();
+        }
+
+        function onScanFailure(error) {
+            // Optional: Handle scan failures
+            console.warn(`QR scan failed: ${error}`);
+        }
+
+        // Function to start the QR scanner with back camera
+        // Helper functions for cookies
+        function setCookie(name, value, days) {
+            const expires = new Date(Date.now() + days * 864e5).toUTCString();
+            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+        }
+
+        function getCookie(name) {
+            return document.cookie.split('; ').reduce((r, v) => {
+                const parts = v.split('=');
+                return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+            }, '');
+        }
+
+        // Check if a given device has torch support
+        async function checkDeviceForTorch(deviceId) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: deviceId } });
+                const track = stream.getVideoTracks()[0];
+                const capabilities = track.getCapabilities();
+                const hasTorch = !!capabilities.torch;
+                // Stop the track(s) immediately
+                stream.getTracks().forEach(t => t.stop());
+                return hasTorch;
+            } catch (e) {
+                console.error("Error checking device for torch:", e);
+                return false;
+            }
+        }
+
+        async function startScanner() {
+            let selectedDeviceId = getCookie("selectedCameraId");
+
+
+            if (selectedDeviceId) {
+                if (!(await checkDeviceForTorch(selectedDeviceId))) {
+                    console.log('no torch')
+
+                    selectedDeviceId = null;
+                }
+            }
+
+
+            if (!selectedDeviceId) {
+
+                try {
+                    const defaultStream = await navigator.mediaDevices.getUserMedia({
+                        audio: false,
+                        video: {
+                            width: { min: 640, ideal: 1280, max: 1920 },
+                            height: { min: 480, ideal: 720, max: 1080 },
+                            facingMode: { exact: "environment" },
+                        }
+                    });
+                    const defaultTrack = defaultStream.getVideoTracks()[0];
+                    const defaultCaps = defaultTrack.getCapabilities();
+
+                    if (defaultCaps.torch) {
+
+
+                        selectedDeviceId = defaultTrack.getSettings().deviceId;
+                        setCookie("selectedCameraId", selectedDeviceId, 30); // Save for 30 days
+                    }
+                    console.log('jgkjgjhkvmkjg')
+
+                    defaultStream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    console.error("Error with default stream:", e);
+                }
+            }
+
+
+            if (!selectedDeviceId) {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    for (const device of devices) {
+                        if (device.kind === "videoinput") {
+
+                            if (await checkDeviceForTorch(device.deviceId)) {
+                                selectedDeviceId = device.deviceId;
+                                setCookie("selectedCameraId", selectedDeviceId, 30);
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error enumerating devices:", e);
+                }
+            }
+
+
+            if (!selectedDeviceId) {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    for (const device of devices) {
+                        if (device.kind === "videoinput") {
+                            selectedDeviceId = device.deviceId;
+                            setCookie("selectedCameraId", selectedDeviceId, 30);
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error in fallback selection:", e);
+                }
+            }
+
+
+            if (selectedDeviceId) {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader", {
+                    fps: 10,
+                    qrbox: 250,
+                    deviceId: selectedDeviceId
+                }
+                );
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            } else {
+                console.error("No suitable camera found.");
+            }
+        }
+
+
+        function fetchStudentInfo() {
+            const uniqueID = document.getElementById("uniqueID").value.trim();
+
+            fetch(`/get_entry/${uniqueID}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("No record found");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("studentInfo").style.display = 'block';
+                    document.getElementById("sName").textContent = data.name;
+                    document.getElementById("sTime").textContent = data.time;
+                    document.getElementById("sReason").textContent = data.reason;
+                })
+                .catch(error => {
+                    alert(`❌ No record found for Unique ID: ${uniqueID}`);
+                    document.getElementById("studentInfo").style.display = 'none';
+                });
+        }
+
+        function submitRating() {
+            const uniqueID = document.getElementById("uniqueID").value.trim();
+            const rating = document.getElementById("rating").value;
+
+            fetch(`/rate/${uniqueID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: rating })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Rating failed");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(`✅ Rating "${rating}" submitted for ${uniqueID}`);
+                    document.getElementById("uniqueID").value = '';
+                    document.getElementById("studentInfo").style.display = 'none';
+                    document.getElementById("qr-reader").style.display = 'block';
+                    document.getElementById("rating").value = 'Valid';
+                })
+                .catch(error => {
+                    alert("❌ Error: Could not submit rating.");
+                });
+        }
+
+    </script>
+
+</body>
+
+</html>
