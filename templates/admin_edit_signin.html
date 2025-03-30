@@ -1,0 +1,32 @@
+{% extends 'admin_base.html' %}
+
+
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+
+
+<div class="container mt-5">
+    <h3>Edit Sign-in Data</h3>
+    <form method="POST">
+        <div class="mb-3">
+            <label>Sign-in ID</label>
+            <input class="form-control" value="{{ entry.id }}" readonly />
+        </div>
+        <div class="mb-3"><label>Full Name</label><input name="full_name" value="{{ entry.full_name }}" class="form-control" required></div>
+        <div class="mb-3"><label>Student ID</label><input name="student_id" value="{{ entry.student_id }}" class="form-control" required></div>
+        <div class="mb-3"><label>Reason</label><textarea name="reason" class="form-control" required>{{ entry.reason }}</textarea></div>
+        <div class="mb-3"><label>Time</label><input name="time" value="{{ entry.time.strftime('%Y-%m-%d %H:%M') }}" class="form-control" required></div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="validated" id="validated" {% if entry.validated %}checked{% endif %}>
+            <label class="form-check-label" for="validated">Validated</label>
+        </div>
+        {% if message %}
+    <p class="text-danger">{{ message }}</p>
+        {% endif %}
+        <button class="btn btn-primary" type="submit">Update</button>
+        <a href="{{ url_for('admin.signins') }}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'admin_base.html' %}
+
+
+{% block title %}Admin Panel{% endblock %}
+
+
+{% block dropdown %}
+<div class="dropdown">
+   <a class="mb-0 btn btn-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+     Welcome, Admin
+   </a>
+ 
+   <ul class="dropdown-menu">
+     <li><a class="dropdown-item" href="/admin1022/students">Manage Students</a></li>
+     <li><a class="dropdown-item" href="/admin1022/teachers">Manage Teachers</a></li>
+     <li><a class="dropdown-item" href="/admin1022/signins">Manage Sign-in Data</a></li>
+     <li><a class="dropdown-item" href="/admin1022/logout">Log Out</a></li>
+   </ul>
+ </div>
+{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <h3>Student Records</h3>
+    <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary mb-3">Add Student</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>ID</th><th>Full Name</th><th>Email</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for student in students.items %}
+            <tr>
+                <td>{{ student.student_id }}</td>
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.email }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_student', student_id=student.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                    <form action="{{ url_for('admin.delete_student', student_id=student.id) }}" method="post" style="display:inline-block;">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete student?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pagination">
+            {% for page_num in range(1, students.pages + 1) %}
+            <li class="page-item {% if page_num == students.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.students', page=page_num) }}">{{ page_num }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
+
+{% endblock %}

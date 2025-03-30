@@ -1,0 +1,20 @@
+{% extends 'admin_base.html' %}
+
+
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <h3>Edit Teacher</h3>
+    <form method="POST">
+        <div class="mb-3"><label>Full Name</label><input name="full_name" value="{{ teacher.full_name }}" class="form-control" required></div>
+        <div class="mb-3"><label>Teacher Code</label><input name="teacher_code" value="{{ teacher.teacher_code }}" class="form-control" required></div>
+        <div class="mb-3"><label>Password (leave blank to keep current)</label><input name="password" type="password" class="form-control"></div>
+        <div class="mb-3"><label>Email</label><input name="email" type="email" value="{{ teacher.email }}" class="form-control"></div>
+        <button class="btn btn-primary" type="submit">Update</button>
+        <a href="{{ url_for('admin.teachers') }}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+
+{% endblock %}

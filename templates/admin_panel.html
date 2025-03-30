@@ -1,0 +1,26 @@
+{% extends 'admin_base.html' %}
+
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block dropdown %}
+<div class="dropdown">
+   <a class="mb-0 btn btn-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+     Welcome, Admin
+   </a>
+ 
+   <ul class="dropdown-menu">
+     <li><a class="dropdown-item" href="/admin1022/students">Manage Students</a></li>
+     <li><a class="dropdown-item" href="/admin1022/teachers">Manage Teachers</a></li>
+     <li><a class="dropdown-item" href="/admin1022/signins">Manage Sign-in Data</a></li>
+     <li><a class="dropdown-item" href="/admin1022/logout">Log Out</a></li>
+   </ul>
+ </div>
+{% endblock %}
+{% block content %}
+<body style="background-color: aliceblue;">
+    <h1 class="d-flex justify-content-center" style="margin-top: 150px;">Welcome to Western Springs College</h1>
+    <h1 class="d-flex justify-content-center">Student Late Sign-in System Admin Panel</h1>
+</body>
+
+{% endblock %}

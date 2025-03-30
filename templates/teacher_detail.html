@@ -1,0 +1,38 @@
+
+{% extends 'teacher_panel_base.html' %}
+
+
+{% block title %}Teacher Panel - WSC Late Sign In{% endblock %}
+{% block content %}
+
+
+    <div class="container mt-5">
+        <h2>Late Sign-In Details</h2>
+        <table class="table table-bordered">
+            <tr><th>Student Name</th><td>{{ entry.full_name }}</td></tr>
+            <tr><th>Student ID</th><td>{{ entry.student_id }}</td></tr>
+            <tr><th>Total Late Count</th><td>{{ student.total_late_count if student else "N/A" }}</td></tr>
+            <tr><th>Sign-in ID</th><td>{{ entry.id }}</td></tr>
+            <tr><th>Sign-in Time</th><td>{{ entry.time.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+            <tr><th>Reason</th><td>{{ entry.reason }}</td></tr>
+            <tr><th>Validated</th><td>
+                {% if entry.validated %}
+                    <span style="color: green;"><strong>VALID</strong></span>
+                {% else %}
+                  <span style="color: red;"><strong>INVALID</strong></span>
+                {% endif %}
+            </td></tr>
+            <tr><th>Validated By</th><td>{{ entry.validator if entry.validator else 'N/A' }}</td></tr>
+        </table>
+
+        <form method="POST" class="d-flex gap-2">
+            <button name="action" value="validate" class="btn btn-success">Validate</button>
+            <button name="action" value="validate with updated time" class="btn btn-success">Validate and Update Sign-in Time</button>
+            <button name="action" value="invalidate" class="btn btn-danger">Invalidate</button>
+            <a href="{{ url_for('teacher_panel') }}" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+
+
+
+{% endblock %}
