@@ -172,3 +172,5 @@ def delete_signin(entry_id):
         return redirect(url_for('admin.login'))
     entry = LateSignIn.query.get_or_404(entry_id)
     db.session.delete(entry)
+    db.session.commit()
+    return redirect(url_for('admin.signins'))
