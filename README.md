@@ -13,6 +13,7 @@ A teacher may: 1. Change their password
 127.0.0.1:5500/admin1022
 **Default username: admin1022
 Password: WSCLateSignInAdmin10221022**
+
 An admin may:
 1. Add students / edit or delete student records
 2. Add teachers / edit or delete teacher records
