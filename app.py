@@ -146,10 +146,23 @@ def teacher_panel():
 
     page = request.args.get('page', 1, type=int)
     per_page = 15
-    late_signins = LateSignIn.query.order_by(LateSignIn.id.desc()).paginate(page=page, per_page=per_page)
+    filter_status = request.args.get('filter_status', 'all')
 
-    return render_template('teacher_panel.html', full_name=session.get('teacher_name'), late_signins=late_signins)
+    query = LateSignIn.query
 
+    if filter_status == "checked":
+        query = query.filter(LateSignIn.validator.isnot(None))
+    elif filter_status == "unchecked":
+        query = query.filter(LateSignIn.validator.is_(None))
+
+    late_signins = query.order_by(LateSignIn.id.desc()).paginate(page=page, per_page=per_page)
+
+    return render_template(
+        'teacher_panel.html',
+        full_name=session.get('teacher_name'),
+        late_signins=late_signins,
+        filter_status=filter_status  # Pass it to keep selection
+    )
 # teacher panel - search by name or Signin
 @app.route('/teacher/search')
 def teacher_search():

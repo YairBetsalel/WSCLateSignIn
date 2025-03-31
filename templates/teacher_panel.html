@@ -4,97 +4,111 @@
 {% block title %}Teacher Panel - WSC Late Sign In{% endblock %}
 
 {% block dropdown %}
-            <div class="dropdown">
-                <a class="mb-0 btn btn-success dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Welcome, {{ full_name }}
-                </a>
-              
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="/teacher/change-password">Change Password</a></li>
-                  <li><a class="dropdown-item" href="/teacher/logout">Log Out</a></li>
-                </ul>
-              </div>
-              {% endblock %}
+<div class="dropdown">
+    <a class="mb-0 btn btn-success dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        Welcome, {{ full_name }}
+    </a>
+
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/teacher/change-password">Change Password</a></li>
+        <li><a class="dropdown-item" href="/teacher/logout">Log Out</a></li>
+    </ul>
+</div>
+{% endblock %}
 {% block content %}
 
 
 
-     <div class="container mt-4">
-        <form action="{{ url_for('teacher_search') }}" method="get" class="d-flex mb-4">
-            <input type="text" name="q" class="form-control me-2" placeholder="Search by student name or unique sign-in ID">
-            <button type="button" class="btn btn-success" type="submit">Search</button>
-        </form>
-        <div class="d-flex justify-content-end">
+<div class="container mt-4">
+    <form action="{{ url_for('teacher_panel') }}" method="get" class="d-flex mb-4">
+        <input type="text" name="q" class="form-control me-2" placeholder="Search by student name or sign-in ID">
+
+        <input type="hidden" name="filter_status" id="filter_status">
+
+        <button type="button" class="btn btn-secondary me-2" onclick="applyFilter('all')">Both</button>
+        <button type="button" class="btn btn-success me-2" onclick="applyFilter('checked')">Checked</button>
+        <button type="button" class="btn btn-danger" onclick="applyFilter('unchecked')">Unchecked</button>
+    </form>
+
+    <div class="d-flex justify-content-end">
         <button class="btn btn-success" onclick="startScanner()">Scan QR Code</button>
-     </div>
-        <div id="qr-reader" style="width: 300px; display: none; margin-bottom: 1rem;"></div>
-        <table class="table table-bordered table-hover" style="margin-top: 10px;">
-            <thead class="table-light">
-                <tr>
-                    <th>Student Name</th>
-                    <th>Student ID</th>
-                    <th>Sign-in ID</th>
-                    <th>Sign-in Time</th>
-                    <th>Details</th>
-                </tr>
-            <tbody>
-                {% for entry in late_signins.items %}
-                <tr>
-                    <td>{{ entry.full_name }}</td>
-                    <td>{{ entry.student_id }}</td>
-                    <td>{{ entry.id }}</td>
-                    <td>{{ entry.time.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td><a href="{{ url_for('teacher_detail', signin_id=entry.id) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Pagination -->
-        <nav>
-            <ul class="pagination justify-content-center">
-                {% for page_num in range(1, late_signins.pages + 1) %}
-                <li class="page-item {% if page_num == late_signins.page %}active{% endif %}">
-                    <a class="page-link " href="{{ url_for('teacher_panel', page=page_num) }}">{{ page_num }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </nav>
     </div>
-    
-    <footer class="text-center mt-5 mb-3 text-muted">
-        <a href="https://westernsprings.school.nz/">Western Springs College Main Website</a>
-        <p >© All rights reserved, 2025.</p>
-    </footer>
+    <div id="qr-reader" style="width: 300px; display: none; margin-bottom: 1rem;"></div>
+    <table class="table table-bordered table-hover" style="margin-top: 10px;">
+        <thead class="table-light">
+            <tr>
+                <th>Student Name</th>
+                <th>Student ID</th>
+                <th>Sign-in ID</th>
+                <th>Sign-in Time</th>
+                <th>Details</th>
+            </tr>
+        <tbody>
+            {% for entry in late_signins.items %}
+            <tr>
+                <td>{{ entry.full_name }}</td>
+                <td>{{ entry.student_id }}</td>
+                <td>{{ entry.id }}</td>
+                <td>{{ entry.time.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ 'Checked' if entry.validator else 'Unchecked' }}</td>
 
-    <script>
-        function startScanner() {
-            const qrReader = document.getElementById("qr-reader");
-            qrReader.style.display = "block"; 
-    
-            const html5QrCode = new Html5Qrcode("qr-reader");
-            const config = { fps: 10, qrbox: 250 };
-    
-            html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                qrCodeMessage => {
-                    document.querySelector("input[name='q']").value = qrCodeMessage;
-    
-                    html5QrCode.stop().then(() => {
-                        qrReader.style.display = "none";
-                    }).catch(err => {
-                        console.error("Failed to stop scanning", err);
-                    });
-                },
-                errorMessage => {
-                    console.log(`QR Code no match: ${errorMessage}`);
-                }
-            ).catch(err => {
-                console.error("Failed to start scanner", err);
-            });
-        }
-    </script>
-    
+                <td><a href="{{ url_for('teacher_detail', signin_id=entry.id) }}"
+                        class="btn btn-sm btn-outline-secondary">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% for page_num in range(1, late_signins.pages + 1) %}
+            <li class="page-item {% if page_num == late_signins.page %}active{% endif %}">
+                <a class="page-link " href="{{ url_for('teacher_panel', page=page_num) }}">{{ page_num }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
+
+<footer class="text-center mt-5 mb-3 text-muted">
+    <a href="https://westernsprings.school.nz/">Western Springs College Main Website</a>
+    <p>© All rights reserved, 2025.</p>
+</footer>
+
+<script>
+    function startScanner() {
+        const qrReader = document.getElementById("qr-reader");
+        qrReader.style.display = "block";
+
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        const config = { fps: 10, qrbox: 250 };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            qrCodeMessage => {
+                document.querySelector("input[name='q']").value = qrCodeMessage;
+
+                html5QrCode.stop().then(() => {
+                    qrReader.style.display = "none";
+                }).catch(err => {
+                    console.error("Failed to stop scanning", err);
+                });
+            },
+            errorMessage => {
+                console.log(`QR Code no match: ${errorMessage}`);
+            }
+        ).catch(err => {
+            console.error("Failed to start scanner", err);
+        });
+    }
+    function applyFilter(status) {
+        document.getElementById('filter_status').value = status;
+        document.forms[0].submit();  // Auto-submit form on button click
+    }
+</script>
+
 
 {% endblock %}
