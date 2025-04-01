@@ -21,19 +21,22 @@
 
 
 <div class="container mt-4">
-    <form action="{{ url_for('teacher_panel') }}" method="get" class="d-flex mb-4">
+    <form action="{{ url_for('teacher_search') }}" method="get" class="d-flex mb-4">
         <input type="text" name="q" class="form-control me-2" placeholder="Search by student name or sign-in ID">
 
-        <input type="hidden" name="filter_status" id="filter_status">
 
-        <button type="button" class="btn btn-secondary me-2" onclick="applyFilter('all')">Both</button>
-        <button type="button" class="btn btn-success me-2" onclick="applyFilter('checked')">Checked</button>
-        <button type="button" class="btn btn-danger" onclick="applyFilter('unchecked')">Unchecked</button>
+        <button type="submit" class="btn btn-success">Search</button>
     </form>
-
     <div class="d-flex justify-content-end">
         <button class="btn btn-success" onclick="startScanner()">Scan QR Code</button>
     </div>
+    <form action="{{ url_for('teacher_panel') }}" method="get" class="d-flex mb-4">
+    <input type="hidden" name="filter_status" id="filter_status">
+    <button type="submit" class="btn btn-secondary me-2" onclick="applyFilter('all')">Both</button>
+    <button type="submit" class="btn btn-success me-2" onclick="applyFilter('checked')">Checked</button>
+    <button type="submit" class="btn btn-danger" onclick="applyFilter('unchecked')">Unchecked</button>
+</form>
+    
     <div id="qr-reader" style="width: 300px; display: none; margin-bottom: 1rem;"></div>
     <table class="table table-bordered table-hover" style="margin-top: 10px;">
         <thead class="table-light">
@@ -42,6 +45,7 @@
                 <th>Student ID</th>
                 <th>Sign-in ID</th>
                 <th>Sign-in Time</th>
+                <th>Status</th>
                 <th>Details</th>
             </tr>
         <tbody>
@@ -51,7 +55,15 @@
                 <td>{{ entry.student_id }}</td>
                 <td>{{ entry.id }}</td>
                 <td>{{ entry.time.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ 'Checked' if entry.validator else 'Unchecked' }}</td>
+                <td>
+                    {% if entry.validator %}
+                    <span style="color: green;font-weight: bold;">Checked</span>
+
+                    {% else %}
+                    <span style="color: red;font-weight: bold;">Unchecked</span>
+
+                    {% endif %}
+                    </td>
 
                 <td><a href="{{ url_for('teacher_detail', signin_id=entry.id) }}"
                         class="btn btn-sm btn-outline-secondary">View</a></td>
@@ -104,9 +116,9 @@
             console.error("Failed to start scanner", err);
         });
     }
-    function applyFilter(status) {
+   function applyFilter(status) {
         document.getElementById('filter_status').value = status;
-        document.forms[0].submit();  // Auto-submit form on button click
+        document.forms[1].submit();  // Auto-submit form on button click
     }
 </script>
 

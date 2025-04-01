@@ -71,6 +71,10 @@ def sign_in():
 @app.route('/signin/<int:entry_id>', methods=['GET', 'POST'])
 def signin_info(entry_id):
     entry = LateSignIn.query.get_or_404(entry_id)
+    nz_time = datetime.now(timezone('Pacific/Auckland'))
+    entry_time_nz = entry.time.astimezone(timezone('Pacific/Auckland'))
+    if (nz_time - entry_time_nz) > timedelta(hours=24):
+        return render_template('expired.html', message="Sorry, sign-in details won't be accessible after 24 hours.")
     # Check if the student just signed in
     if session.get('last_signed_in_id') == entry_id:
         # Clear session
