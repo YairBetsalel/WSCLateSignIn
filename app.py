@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, abort, make_response
 import os
 from pytz import timezone
 from datetime import datetime, timedelta
@@ -6,6 +6,9 @@ import ssl
 from models import db, Student, Teacher, LateSignIn
 #import admin part
 from admin_route import admin_r
+
+import random
+import hashlib
 
 app = Flask(__name__)
 
@@ -120,16 +123,25 @@ def search_students():
 def teacher_login():
     if request.method == 'POST':
         code = request.form.get('teacher_code')
-        password = request.form.get('password')
+        password = hashlib.sha256(request.form.get('password').encode()).hexdigest()
         #Verify Teacher Code and Password
         teacher = Teacher.query.filter_by(teacher_code=code, password=password).first()
 
         if teacher:
+            csrf_token = hashlib.md5(str(random.randint(1111, 9999)).encode()).hexdigest()
+
             session['teacher_logged_in'] = True
             session['teacher_name'] = teacher.full_name
             session['teacher_code'] = teacher.teacher_code
+            session['csrf_token'] = csrf_token
             session.permanent = True  # session lasts 7 days
-            return redirect(url_for('teacher_panel'))
+
+            response = make_response(redirect(url_for('teacher_panel')))
+            response.set_cookie(
+                'csrf_token', csrf_token, 
+                httponly=True, secure=True, samesite='Strict'
+            )  
+            return response
         else:
             message = "Invalid Teacher Code or Password"
             return render_template('teacher_login.html', message=message)
@@ -217,14 +229,17 @@ def change_password():
     if not session.get('teacher_logged_in'):
         return redirect(url_for('teacher_login'))
 
+    if request.cookies.get('csrf_token') != session['csrf_token']:
+        abort(403)
+
     teacher = Teacher.query.filter_by(teacher_code=session['teacher_code']).first()
 
     if request.method == 'POST':
         old_pass = request.form.get('old_password')
         new_pass = request.form.get('new_password')
 
-        if teacher and teacher.password == old_pass:
-            teacher.password = new_pass
+        if teacher and teacher.password == hashlib.sha256(old_pass.encode()).hexdigest():
+            teacher.password = hashlib.sha256(new_pass.encode()).hexdigest()
             db.session.commit()
             return redirect(url_for('teacher_logout'))
         else:

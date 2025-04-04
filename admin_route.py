@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, Student, Teacher, LateSignIn
 from datetime import datetime, timedelta
 
+import hashlib
+
 admin_r = Blueprint('admin', __name__, url_prefix='/admin1022')
 
 @admin_r.route('/login', methods=['GET', 'POST'])
@@ -88,7 +90,7 @@ def add_teacher():
         teacher = Teacher(
             full_name=request.form['full_name'],
             teacher_code=request.form['teacher_code'],
-            password=request.form['password'],
+            password=hashlib.sha256(request.form['password'].encode()).hexdigest(),
             email=request.form['email']
         )
         db.session.add(teacher)
@@ -116,7 +118,7 @@ def edit_teacher(teacher_id):
         teacher.teacher_code = request.form['teacher_code']
         teacher.email = request.form['email']
         if request.form['password']:
-            teacher.password = request.form['password']
+            teacher.password = hashlib.sha256(request.form['password'].encode()).hexdigest()
         db.session.commit()
         return redirect(url_for('admin.teachers'))
     return render_template('admin_edit_teacher.html', teacher=teacher)
